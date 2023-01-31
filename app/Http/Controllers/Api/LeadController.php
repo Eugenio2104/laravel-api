@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Lead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,12 +13,13 @@ class LeadController extends Controller
     {
         $data = $request->all();
 
+        $success = true;
+
         $validator = Validator::make(
             $data,
             [
                 'name' => 'required|min:2|max:255',
                 'email' => 'required|email|max:255',
-                'object' => 'required|email|max:255',
                 'message' => 'required|min:5',
             ],
             [
@@ -27,9 +29,6 @@ class LeadController extends Controller
                 'email.required' => 'L\'email è un campo obbligatorio',
                 'email.email' => 'L\'email non è formattata correttamente',
                 'email.max' => 'L\'email deve avere al massimo :max caratteri',
-                'object.required' => 'L\'email è un campo obbligatorio',
-                'object.email' => 'L\'email non è formattata correttamente',
-                'object.max' => 'L\'email deve avere al massimo :max caratteri',
                 'message.required' => 'Il messaggio è un campo obbligatorio',
                 'message.min' => 'Il messaggio deve avere al minimo :min caratteri',
             ]
@@ -41,6 +40,10 @@ class LeadController extends Controller
             return response()->json(compact('success', 'errors'));
         }
 
-        return response()->json($data);
+        $new_lead = new Lead();
+        $new_lead->fill($data);
+        $new_lead->save();
+
+        return response()->json(compact('success'));
     }
 }
